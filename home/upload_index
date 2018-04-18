@@ -1,0 +1,17 @@
+#!/bin/bash
+HOST='{FTP_SERVER}'
+USER='{FTP_USER}'
+PASSWD='{FTP_PASSWORD}'
+curl http://127.0.0.1/helper.php > /home/pi/helper.php
+
+ftp -n -v $HOST << EOT
+ascii
+user $USER $PASSWD
+prompt
+lcd /var/www/html
+cd htdocs
+mput index.html index.html
+bye
+EOT
+
+rm /home/pi/helper.php

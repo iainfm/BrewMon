@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="styles.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+google.charts.load('current', {'packages':['gauge']});
+google.charts.setOnLoadCallback(drawChart);
+
+var probe_array = [];
+var array = [];
+
+function get_data() {
+	$.get("/helper.php"+'?'+new Date().getTime(), function (data, status) {
+		var probe_info = (JSON.parse(data));
+		if (status == 'success') {
+			var probe_info = (JSON.parse(data));
+			// console.log(probe_info);
+			keys = Object.keys(probe_info);
+			// console.log(keys);
+			array = [["Label", "Data"]];
+			for (var k=0 ; k < keys.length; k++) {
+				// console.log(keys[k]);
+				var probe_name = probe_info[keys[k]].probe_name;
+				var last_temp = probe_info[keys[k]].last_temp;
+				array[k+1] = [probe_name, last_temp];
+			}
+		}
+	});
+
+	if (array.length > 0) {
+		// var to_return = [["Label", "Data"]];
+		console.log(array);
+		return array;
+		// return [["Label", "Data"]].concat(probe_array);
+	}
+	else {
+		return [["Label", "Data"], ["Loading...", 0.0]];
+	}
+}
+	  
+function drawChart() {
+	var arr = get_data();
+	var data = google.visualization.arrayToDataTable(arr);	
+	var options = {
+		greenFrom: 20, greenTo: 22,
+		min:17,
+		max:25,
+		minorTicks: 2
+	};
+	
+	var formatter = new google.visualization.NumberFormat({fractionDigits: 1});
+	var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+	
+	formatter.format(data, 1);
+	chart.draw(data, options);
+		
+	setInterval(function() {
+		var arr =  get_data();
+		data = google.visualization.arrayToDataTable(arr);
+		formatter.format(data, 1);
+		chart.draw(data, options);
+	}, 1000);
+
+}
+</script>
+</head>
+<body>
+<div class="main">
+<div class="wrapper">
+<center>
+<div class="wrapper" id="chart_div" style="width: 1580px; height: 520px;"></div>
+</center>
+</div>
+</div>
+</body>
+</html>
