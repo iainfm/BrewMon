@@ -29,8 +29,8 @@ def login_open_sheet(oauth_key_file, spreadsheet):
         sys.exit(1)
 
 config = {
-        'user': '[username]',
-        'password': '[password]',
+        'user': 'brewmonuser',
+        'password': 'beerbeerbeer',
         'host': '127.0.0.1',
         'database': 'brewDB',
         'raise_on_warnings': True
