@@ -21,7 +21,7 @@ def login_open_sheet(oauth_key_file, spreadsheet):
         credentials = ServiceAccountCredentials.from_json_keyfile_name(oauth_key_file, scope)
         gc = gspread.authorize(credentials)
 	sh = gc.open(spreadsheet)
-        worksheet = sh.worksheet("Sheet1")
+        worksheet = sh.worksheet("BrewMonSQL")
         return worksheet
     except Exception as ex:
         print('Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name, and make sure spreadsheet is shared to the client_email address in the OAuth .json file!')
@@ -30,7 +30,7 @@ def login_open_sheet(oauth_key_file, spreadsheet):
 
 config = {
         'user': 'brewmonuser',
-        'password': 'beerbeerbeer',
+        'password': 'b33rm0n!',
         'host': '127.0.0.1',
         'database': 'brewDB',
         'raise_on_warnings': True
@@ -38,7 +38,7 @@ config = {
 
 cnx = mysql.connector.connect(**config)
 cursor = cnx.cursor()
-sql = "SELECT probe_name, last_temp FROM BrewMon WHERE probe_active=1 ORDER BY probe_name"
+sql = "SELECT probe_name, last_temp FROM BrewMon WHERE probe_active=1 AND probe_name != '-' ORDER BY probe_name"
 cursor.execute(sql)
 
 j=0
@@ -52,8 +52,10 @@ cursor.close
 cnx.close
 
 worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
-worksheet.update_cell(1,1, 'Timestamp')
+worksheet.delete_row(1)
+header=['Timestamp']
 
 for index, item in enumerate(name):
-	worksheet.update_cell(1, 2 + index, item)
+	header.extend([item])
+worksheet.insert_row(header,1)
 worksheet.append_row(temp)
